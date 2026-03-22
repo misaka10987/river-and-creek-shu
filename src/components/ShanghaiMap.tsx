@@ -3,10 +3,7 @@
 
 import React, { useRef, useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
-import dynamic from 'next/dynamic'
 import type { Attraction } from '@/lib/attractions'
-
-const AttractionList = dynamic(() => import('./AttractionList'), { ssr: false })
 
 /**
  * 天地图 API 加载器
@@ -14,9 +11,13 @@ const AttractionList = dynamic(() => import('./AttractionList'), { ssr: false })
  */
 
 
-export default function ShanghaiMap() {
+interface Props {
+  selected: string | null;
+  setSelected: (file: string | null) => void;
+}
+
+export default function ShanghaiMap({ selected, setSelected }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
-  const [selected, setSelected] = useState<string | null>(null)
   const [attractions, setAttractions] = useState<Attraction[]>([])
   const [loading, setLoading] = useState(true)
   const [mapObj, setMapObj] = useState<any>(null) // T.Map 类型无法直接引入
@@ -107,10 +108,7 @@ export default function ShanghaiMap() {
           </button>
         ))}
       </div>
-      {/* 景点标签列表（左上角） */}
-      <div className="z-1000">
-        <AttractionList onSelect={setSelected} selected={selected} />
-      </div>
+      {/* 景点标签列表已移除，地图外可单独渲染 */}
       {/* 景点卡片（右上角） */}
       {selectedAttr && (
         <div
