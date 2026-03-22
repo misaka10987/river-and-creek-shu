@@ -16,10 +16,10 @@ export default function Home() {
     <div className="flex flex-col flex-1 items-center justify-start min-h-screen bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-col w-full max-w-7xl items-center py-12 px-2 sm:px-8 bg-white dark:bg-black">
         <h1 className="text-3xl font-bold text-black dark:text-zinc-50 mb-2">
-          上海沿江沿河旅游地图
+          「一江一河」旅游地图
         </h1>
         <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8 text-center">
-          沿苏州河、黄浦江，发现上海的城市风光与历史人文。点击地图上的标签，了解每个景点的故事。
+          上海大学
         </p>
         <div className="w-full flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8">
           {/* 左侧：景点列表 */}
