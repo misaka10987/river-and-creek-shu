@@ -1,6 +1,10 @@
-import dynamic from "next/dynamic";
 
-const ShanghaiMap = dynamic(() => import("@/components/ShanghaiMap"), { ssr: false });
+function MapClient() {
+  "use client";
+  const dynamicImport = require("next/dynamic");
+  const ShanghaiMap = dynamicImport.default(() => import("@/components/ShanghaiMap"), { ssr: false });
+  return <ShanghaiMap />;
+}
 
 export default function Home() {
   return (
@@ -10,7 +14,7 @@ export default function Home() {
         <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8 text-center">
           沿苏州河、黄浦江，发现上海的城市风光与历史人文。点击地图上的标签，了解每个景点的故事。
         </p>
-        <ShanghaiMap />
+        <MapClient />
       </main>
     </div>
   );
