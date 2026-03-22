@@ -1,8 +1,10 @@
 
 'use client'
+
 import React, { useRef, useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import dynamic from 'next/dynamic'
+import type { Attraction } from '@/lib/attractions'
 
 const AttractionList = dynamic(() => import('./AttractionList'), { ssr: false })
 
@@ -15,9 +17,9 @@ const AttractionList = dynamic(() => import('./AttractionList'), { ssr: false })
 export default function ShanghaiMap() {
   const mapRef = useRef<HTMLDivElement>(null)
   const [selected, setSelected] = useState<string | null>(null)
-  const [attractions, setAttractions] = useState<any[]>([])
+  const [attractions, setAttractions] = useState<Attraction[]>([])
   const [loading, setLoading] = useState(true)
-  const [mapObj, setMapObj] = useState<any>(null)
+  const [mapObj, setMapObj] = useState<any>(null) // T.Map 类型无法直接引入
   const [points, setPoints] = useState<{file: string, x: number, y: number, name: string}[]>([])
 
   // 加载景点数据
@@ -63,7 +65,7 @@ export default function ShanghaiMap() {
     if (!mapObj || attractions.length === 0) return;
     const updatePoints = () => {
       const T = (window as any).T;
-      const arr = attractions.map((attr: any) => {
+      const arr = attractions.map((attr) => {
         const lnglat = new T.LngLat(attr.coordinate[0], attr.coordinate[1]);
         const pt = mapObj.lngLatToContainerPoint(lnglat);
         return { file: attr.file, x: pt.x, y: pt.y, name: attr.name };
@@ -81,9 +83,9 @@ export default function ShanghaiMap() {
 
 
   // 当前选中的景点
-  const selectedAttr = attractions.find((a: any) => a.file === selected)
+  const selectedAttr = attractions.find((a) => a.file === selected)
 
-  console.log(selectedAttr)
+  // console.log(selectedAttr)
 
   return (
     <div className="relative w-full h-100">
