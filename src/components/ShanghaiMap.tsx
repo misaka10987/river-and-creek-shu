@@ -83,7 +83,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
       const lnglat = new T.LngLat(lng, lat);
       const marker = new T.Marker(lnglat, {
         icon: new T.Icon({
-          iconUrl: 'https://api.tianditu.gov.cn/img/map/markerA.png',
+          iconUrl: 'https://api.tianditu.gov.cn/img/map/marker.png',
           iconSize: new T.Point(24, 24),
         })
       });
