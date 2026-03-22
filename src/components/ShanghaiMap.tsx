@@ -22,11 +22,20 @@ export default function ShanghaiMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<null | string>(null);
   const [mapInstance, setMapInstance] = useState<any>(null);
-
-  // attractions 静态导入
-  const { attractions } = require("@/lib/attractions");
+  const [attractions, setAttractions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetch("/api/attractions")
+      .then(res => res.json())
+      .then(data => {
+        setAttractions(data);
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (loading || attractions.length === 0) return;
     loadTianDiTuScript(() => {
       if (!(window as any).TMap || !mapRef.current) return;
       // @ts-ignore
@@ -48,7 +57,7 @@ export default function ShanghaiMap() {
       });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loading, attractions]);
 
   const selectedAttr = attractions.find((a: any) => a.file === selected);
 
