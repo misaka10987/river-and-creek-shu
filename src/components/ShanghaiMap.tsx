@@ -1,9 +1,10 @@
 
 'use client'
 
+
 import React, { useRef, useState, useEffect } from 'react'
-import ReactMarkdown from 'react-markdown'
 import type { Attraction } from '@/lib/attractions'
+import type { T } from 'tianditu-v4-types';
 
 /**
  * 天地图 API 加载器
@@ -20,11 +21,12 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [attractions, setAttractions] = useState<Attraction[]>([])
   const [loading, setLoading] = useState(true)
-  const [mapObj, setMapObj] = useState<any>(null) // T.Map 类型无法直接引入
+  // T.Map 类型无法直接引入，使用 unknown
+  const [mapObj, setMapObj] = useState<T.Map | null>(null)
   const [points, setPoints] = useState<{file: string, x: number, y: number, name: string}[]>([])
   const [dragging, setDragging] = useState(false)
   // 直接管理 marker 实例数组
-  const markerRefs = useRef<any[]>([])
+  const markerRefs = useRef<T.Marker[]>([])
 
   // 加载景点数据
   useEffect(() => {
@@ -42,13 +44,11 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     if (loading || attractions.length === 0) return;
     const initMap = () => {
       if (!(window as any).T || !mapRef.current) return;
-      // @ts-ignore
-      const map = new (window as any).T.Map(mapRef.current, {
+      const TMap = (window as any).T as typeof import('tianditu-v4-types').T;
+      const map = new TMap.Map(mapRef.current, {
         projection: 'EPSG:4326',
       });
-      // @ts-ignore
-      map.centerAndZoom(new (window as any).T.LngLat(121.4737, 31.2304), 12);
-      // 启用缩放、拖拽、滚轮、双击缩放、键盘等交互
+      map.centerAndZoom(new TMap.LngLat(121.4737, 31.2304), 12);
       if (typeof map.enableDrag === 'function') map.enableDrag();
       if (typeof map.enableScrollWheelZoom === 'function') map.enableScrollWheelZoom();
       if (typeof map.enableDoubleClickZoom === 'function') map.enableDoubleClickZoom();
@@ -72,7 +72,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   // 监听地图移动/缩放，更新标签像素坐标
   useEffect(() => {
     if (!mapObj || attractions.length === 0) return;
-    const T = (window as any).T;
+    const TMap = (window as any).T as typeof import('tianditu-v4-types').T;
 
     // 清除旧 marker
     markerRefs.current.forEach(m => mapObj.removeOverLay(m));
@@ -80,13 +80,14 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     // 生成并添加 marker
     const markers = attractions.map((attr) => {
       const [lat, lng] = attr.coordinate;
-      const lnglat = new T.LngLat(lng, lat);
-      const marker = new T.Marker(lnglat, {
-        icon: new T.Icon({
+      const lnglat = new TMap.LngLat(lng, lat);
+      const marker = new TMap.Marker(lnglat, {
+        icon: new TMap.Icon({
           iconUrl: 'https://api.tianditu.gov.cn/img/map/marker.png',
-          iconSize: new T.Point(24, 24),
+          iconSize: new TMap.Point(24, 24),
         })
       });
+      // @ts-ignore
       marker.data = { file: attr.file, name: attr.name };
       marker.on('click', () => setSelected(attr.file));
       mapObj.addOverLay(marker);
@@ -97,7 +98,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     const updatePoints = () => {
       const arr = attractions.map((attr) => {
         const [lat, lng] = attr.coordinate;
-        const lnglat = new T.LngLat(lng, lat);
+        const lnglat = new TMap.LngLat(lng, lat);
         const pt = mapObj.lngLatToContainerPoint(lnglat);
         return { file: attr.file, x: pt.x, y: pt.y, name: attr.name };
       });
@@ -115,7 +116,6 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     mapObj.on('zoomstart', handleMoveStart);
     mapObj.on('moveend', handleMoveEnd);
     mapObj.on('zoomend', handleMoveEnd);
-    // 兼容原有更新
     mapObj.on('moveend', updatePoints);
     mapObj.on('zoomend', updatePoints);
     return () => {
@@ -138,7 +138,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         style={{ position: 'relative', overflow: 'hidden' }}
       >
         {/* 拖拽/缩放时隐藏 DOM 标签，显示原生 marker */}
-        {!dragging && mapObj && points.map(pt => (
+        {!dragging && points.length > 0 && points.map(pt => (
           <button
             key={pt.file}
             className={`absolute z-1000 -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}

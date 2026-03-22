@@ -1,9 +1,10 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import AttractionList from "@/components/AttractionList";
-import AttractionCard from "@/components/AttractionCard";
+// import AttractionCard from "@/components/AttractionCard"; // 由 AttractionCardWrapper 内部使用，无需在此引入
+import AttractionCardWrapper from "@/components/AttractionCardWrapper";
 
 const ShanghaiMap = dynamic(() => import("@/components/ShanghaiMap"), { ssr: false });
 
@@ -44,21 +45,5 @@ export default function Home() {
       </main>
     </div>
   );
-// 包裹器：根据 selected 查找景点数据
-type Attraction = {
-  name: string;
-  coordinate: [number, number];
-  content: string;
-  file: string;
-};
 
-function AttractionCardWrapper({ selected, onClose }: { selected: string | null; onClose: () => void }) {
-  const [attractions, setAttractions] = useState<Attraction[]>([]);
-  useEffect(() => {
-    fetch("/attractions.json").then(res => res.json()).then(setAttractions);
-  }, []);
-  const attraction = attractions.find(a => a.file === selected);
-  if (!selected || !attraction) return null;
-  return <AttractionCard attraction={attraction} onClose={onClose} />;
-}
 }
