@@ -22,6 +22,9 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   const [loading, setLoading] = useState(true)
   const [mapObj, setMapObj] = useState<any>(null) // T.Map 类型无法直接引入
   const [points, setPoints] = useState<{file: string, x: number, y: number, name: string}[]>([])
+  const [dragging, setDragging] = useState(false)
+  // 直接管理 marker 实例数组
+  const markerRefs = useRef<any[]>([])
 
   // 加载景点数据
   useEffect(() => {
@@ -64,10 +67,30 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   // 监听地图移动/缩放，更新标签像素坐标
   useEffect(() => {
     if (!mapObj || attractions.length === 0) return;
+    const T = (window as any).T;
+
+    // 清除旧 marker
+    markerRefs.current.forEach(m => mapObj.removeOverLay(m));
+    markerRefs.current = [];
+    // 生成并添加 marker
+    const markers = attractions.map((attr) => {
+      const [lat, lng] = attr.coordinate;
+      const lnglat = new T.LngLat(lng, lat);
+      const marker = new T.Marker(lnglat, {
+        icon: new T.Icon({
+          iconUrl: 'https://api.tianditu.gov.cn/img/map/markerA.png',
+          iconSize: new T.Point(24, 24),
+        })
+      });
+      marker.data = { file: attr.file, name: attr.name };
+      marker.on('click', () => setSelected(attr.file));
+      mapObj.addOverLay(marker);
+      return marker;
+    });
+    markerRefs.current = markers;
+
     const updatePoints = () => {
-      const T = (window as any).T;
       const arr = attractions.map((attr) => {
-        // coordinate: [lat, lng]，但 T.LngLat 需 [lng, lat]
         const [lat, lng] = attr.coordinate;
         const lnglat = new T.LngLat(lng, lat);
         const pt = mapObj.lngLatToContainerPoint(lnglat);
@@ -76,13 +99,29 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
       setPoints(arr);
     };
     updatePoints();
+
+    // 拖拽/缩放事件处理
+    const handleMoveStart = () => setDragging(true);
+    const handleMoveEnd = () => {
+      setDragging(false);
+      updatePoints();
+    };
+    mapObj.on('movestart', handleMoveStart);
+    mapObj.on('zoomstart', handleMoveStart);
+    mapObj.on('moveend', handleMoveEnd);
+    mapObj.on('zoomend', handleMoveEnd);
+    // 兼容原有更新
     mapObj.on('moveend', updatePoints);
     mapObj.on('zoomend', updatePoints);
     return () => {
+      mapObj.off('movestart', handleMoveStart);
+      mapObj.off('zoomstart', handleMoveStart);
+      mapObj.off('moveend', handleMoveEnd);
+      mapObj.off('zoomend', handleMoveEnd);
       mapObj.off('moveend', updatePoints);
       mapObj.off('zoomend', updatePoints);
     };
-  }, [mapObj, attractions]);
+  }, [mapObj, attractions, setSelected]);
 
 
   return (
@@ -93,8 +132,8 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         id="shanghai-map"
         style={{ position: 'relative', overflow: 'hidden' }}
       >
-        {/* 地图标签点 DOM 渲染 */}
-        {mapObj && points.map(pt => (
+        {/* 拖拽/缩放时隐藏 DOM 标签，显示原生 marker */}
+        {!dragging && mapObj && points.map(pt => (
           <button
             key={pt.file}
             className={`absolute z-1000 -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}
