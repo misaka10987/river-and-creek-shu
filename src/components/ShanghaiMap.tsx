@@ -66,11 +66,10 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     }
   }, [loading, attractions])
 
-  // 拦截滚轮和触摸缩放，手动缩放地图
+  // 仅拦截滚轮缩放，手动缩放地图
   useEffect(() => {
     if (!mapObj || !mapRef.current) return
     const el = mapRef.current
-    // 滚轮缩放
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
       if (e.deltaY < 0) {
@@ -79,40 +78,9 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         mapObj.zoomOut()
       }
     }
-    // 触摸缩放
-    let lastDist = 0
-    const getDist = (touches: TouchList) => {
-      if (touches.length < 2) return 0
-      const dx = touches[0].clientX - touches[1].clientX
-      const dy = touches[0].clientY - touches[1].clientY
-      return Math.sqrt(dx * dx + dy * dy)
-    }
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        lastDist = getDist(e.touches)
-      }
-    }
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        const dist = getDist(e.touches)
-        if (lastDist) {
-          if (dist - lastDist > 10) {
-            mapObj.zoomIn()
-            lastDist = dist
-          } else if (lastDist - dist > 10) {
-            mapObj.zoomOut()
-            lastDist = dist
-          }
-        }
-      }
-    }
     el.addEventListener('wheel', handleWheel, { passive: false })
-    el.addEventListener('touchstart', handleTouchStart, { passive: false })
-    el.addEventListener('touchmove', handleTouchMove, { passive: false })
     return () => {
       el.removeEventListener('wheel', handleWheel)
-      el.removeEventListener('touchstart', handleTouchStart)
-      el.removeEventListener('touchmove', handleTouchMove)
     }
   }, [mapObj])
 
