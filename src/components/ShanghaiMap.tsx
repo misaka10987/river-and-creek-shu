@@ -48,6 +48,11 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
       });
       // @ts-ignore
       map.centerAndZoom(new (window as any).T.LngLat(121.4737, 31.2304), 12);
+      // 启用缩放、拖拽、滚轮、双击缩放、键盘等交互
+      if (typeof map.enableDrag === 'function') map.enableDrag();
+      if (typeof map.enableScrollWheelZoom === 'function') map.enableScrollWheelZoom();
+      if (typeof map.enableDoubleClickZoom === 'function') map.enableDoubleClickZoom();
+      if (typeof map.enableKeyboard === 'function') map.enableKeyboard();
       setMapObj(map);
     };
     // 只插入一次 script
