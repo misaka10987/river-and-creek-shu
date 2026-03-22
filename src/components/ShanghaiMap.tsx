@@ -51,7 +51,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
       const map = new TMap.Map(mapRef.current, {
         projection: 'EPSG:4326',
       })
-      map.centerAndZoom(new TMap.LngLat(121.4737, 31.2304), 12)
+      map.centerAndZoom(new TMap.LngLat(121.467167, 31.23545), 12)
       map.enableDrag()
       setMapObj(map)
     }
