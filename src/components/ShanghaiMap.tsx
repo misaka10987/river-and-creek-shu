@@ -25,7 +25,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
 
   // 加载景点数据
   useEffect(() => {
-    fetch('/api/attractions')
+    fetch('/attractions.json')
       .then(res => res.json())
       .then(data => {
         setAttractions(data)

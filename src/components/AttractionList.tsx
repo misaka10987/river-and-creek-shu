@@ -13,7 +13,7 @@ export default function AttractionList({ onSelect, selected }: Props) {
   const [attractions, setAttractions] = useState<Attraction[]>([]);
 
   useEffect(() => {
-    fetch("/api/attractions")
+    fetch("/attractions.json")
       .then((res) => res.json())
       .then((data) => setAttractions(data));
   }, []);
