@@ -23,6 +23,8 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     { file: string; x: number; y: number; name: string }[]
   >([])
   const [dragging, setDragging] = useState(false)
+  // 控制标签淡入动画的 key
+  const [labelKey, setLabelKey] = useState(0)
   // 直接管理 marker 实例数组
   const markerRefs = useRef<T.Marker[]>([])
 
@@ -127,6 +129,8 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     const handleMoveEnd = () => {
       setDragging(false)
       updatePoints()
+      // 触发标签重新渲染以实现淡入
+      setLabelKey((k) => k + 1)
     }
     mapObj.on('movestart', handleMoveStart)
     mapObj.on('zoomstart', handleMoveStart)
@@ -153,18 +157,26 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         style={{ position: 'relative', overflow: 'hidden' }}
       >
         {/* 拖拽/缩放时隐藏 DOM 标签，显示原生 marker */}
-        {!dragging &&
-          points.length > 0 &&
-          points.map((pt) => (
-            <button
-              key={pt.file}
-              className={`absolute z-1000 -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}
-              style={{ left: pt.x, top: pt.y, pointerEvents: 'auto' }}
-              onClick={() => setSelected(pt.file)}
-            >
-              {pt.name}
-            </button>
-          ))}
+        {!dragging && points.length > 0 && (
+          <>
+            {points.map((pt) => (
+              <button
+                key={pt.file + '-' + labelKey}
+                className={`absolute z-1000 -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary transition-opacity duration-500 opacity-0 animate-fadein ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}
+                style={{ left: pt.x, top: pt.y, pointerEvents: 'auto', animation: 'fadein 0.5s forwards' }}
+                onClick={() => setSelected(pt.file)}
+              >
+                {pt.name}
+              </button>
+            ))}
+            <style>{`
+              @keyframes fadein {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+            `}</style>
+          </>
+        )}
       </div>
     </div>
   )
