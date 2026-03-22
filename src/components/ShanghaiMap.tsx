@@ -85,16 +85,11 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   }, [mapObj, attractions]);
 
 
-  // 当前选中的景点
-  const selectedAttr = attractions.find((a) => a.file === selected)
-
-  // console.log(selectedAttr)
-
   return (
-    <div className="relative w-full h-100">
+    <div className="relative w-full h-full">
       <div
         ref={mapRef}
-          className="w-full h-100 rounded-lg border border-zinc-200 shadow"
+        className="w-full h-full rounded-lg border border-zinc-200 shadow"
         id="shanghai-map"
         style={{ position: 'relative', overflow: 'hidden' }}
       >
@@ -102,7 +97,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         {mapObj && points.map(pt => (
           <button
             key={pt.file}
-              className={`absolute z-1000 -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}
+            className={`absolute z-1000 -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}
             style={{ left: pt.x, top: pt.y, pointerEvents: 'auto' }}
             onClick={() => setSelected(pt.file)}
           >
@@ -110,29 +105,6 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
           </button>
         ))}
       </div>
-      {/* 景点标签列表已移除，地图外可单独渲染 */}
-      {/* 景点卡片（右上角） */}
-      {selectedAttr && (
-        <div
-          className="fixed sm:absolute inset-0 sm:inset-auto sm:right-4 sm:top-4 z-1000 bg-white sm:rounded-lg shadow-lg p-4 sm:max-w-xs w-full sm:w-80 border border-zinc-200 flex flex-col max-h-full sm:max-h-60"
-          style={{ maxHeight: '90vh' }}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <div className="font-bold text-lg truncate">{selectedAttr.name}</div>
-            <button
-              onClick={() => setSelected(null)}
-              className="text-zinc-400 hover:text-zinc-800 text-2xl leading-none sm:text-base"
-              aria-label="关闭"
-            >
-              ×
-            </button>
-          </div>
-          <div className="prose prose-sm flex-1 overflow-y-auto text-xs">
-            {/* Markdown 渲染 */}
-            <ReactMarkdown>{selectedAttr.content}</ReactMarkdown>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
