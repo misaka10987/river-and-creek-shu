@@ -67,7 +67,9 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     const updatePoints = () => {
       const T = (window as any).T;
       const arr = attractions.map((attr) => {
-        const lnglat = new T.LngLat(attr.coordinate[0], attr.coordinate[1]);
+        // coordinate: [lat, lng]，但 T.LngLat 需 [lng, lat]
+        const [lat, lng] = attr.coordinate;
+        const lnglat = new T.LngLat(lng, lat);
         const pt = mapObj.lngLatToContainerPoint(lnglat);
         return { file: attr.file, x: pt.x, y: pt.y, name: attr.name };
       });
