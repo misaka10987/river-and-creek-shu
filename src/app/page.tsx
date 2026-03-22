@@ -35,7 +35,7 @@ export default function Home() {
         </div>
         {/* 移动端卡片浮层 */}
         {selected && (
-          <div className="sm:hidden fixed inset-0 z-50 bg-black/40 flex items-end">
+          <div className="sm:hidden fixed inset-0 z-1000 bg-black/40 flex items-end">
             <div className="w-full bg-white dark:bg-zinc-900 rounded-t-2xl shadow-lg p-4 max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom-10">
               <AttractionCardWrapper selected={selected} onClose={() => setSelected(null)} />
             </div>
