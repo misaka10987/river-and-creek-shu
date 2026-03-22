@@ -149,13 +149,13 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   }, [mapObj, attractions, setSelected])
 
   return (
-    <div className="relative w-full h-full">
-      <div
-        ref={mapRef}
-        className="w-full h-full rounded-lg border border-zinc-200 shadow"
-        id="shanghai-map"
-        style={{ position: 'relative', overflow: 'hidden' }}
-      >
+        <div className="relative w-full h-full">
+          <div
+            ref={mapRef}
+            className="w-full aspect-square rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center justify-center"
+            id="shanghai-map"
+            style={{ maxWidth: '100%', maxHeight: '100%', position: 'relative', overflow: 'hidden' }}
+          >
         {/* 拖拽/缩放时隐藏 DOM 标签，显示原生 marker */}
         {!dragging && points.length > 0 && (
           <>

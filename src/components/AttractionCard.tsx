@@ -8,7 +8,7 @@ interface Props {
 
 export default function AttractionCard({ attraction, onClose }: Props) {
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-zinc-900 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-800 p-4 max-h-full">
+    <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-800 p-4 max-h-full">
       <div className="flex justify-between items-center mb-2">
         <div className="font-bold text-lg truncate">{attraction.name}</div>
         <button
