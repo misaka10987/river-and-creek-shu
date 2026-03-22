@@ -1,6 +1,7 @@
 
 'use client'
 import React, { useRef, useState, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
 import dynamic from 'next/dynamic'
 
 const AttractionList = dynamic(() => import('./AttractionList'), { ssr: false })
@@ -85,10 +86,10 @@ export default function ShanghaiMap() {
   console.log(selectedAttr)
 
   return (
-    <div className="relative w-full h-[400px]">
+    <div className="relative w-full h-100">
       <div
         ref={mapRef}
-        className="w-full h-[400px] rounded-lg border border-zinc-200 shadow"
+          className="w-full h-100 rounded-lg border border-zinc-200 shadow"
         id="shanghai-map"
         style={{ position: 'relative', overflow: 'hidden' }}
       >
@@ -96,7 +97,7 @@ export default function ShanghaiMap() {
         {mapObj && points.map(pt => (
           <button
             key={pt.file}
-            className={`absolute z-[1000] -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}
+              className={`absolute z-1000 -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}
             style={{ left: pt.x, top: pt.y, pointerEvents: 'auto' }}
             onClick={() => setSelected(pt.file)}
           >
@@ -111,7 +112,7 @@ export default function ShanghaiMap() {
       {/* 景点卡片（右上角） */}
       {selectedAttr && (
         <div
-          className="fixed sm:absolute inset-0 sm:inset-auto sm:right-4 sm:top-4 z-[1000] bg-white sm:rounded-lg shadow-lg p-4 sm:max-w-xs w-full sm:w-80 border border-zinc-200 flex flex-col max-h-full sm:max-h-60"
+          className="fixed sm:absolute inset-0 sm:inset-auto sm:right-4 sm:top-4 z-1000 bg-white sm:rounded-lg shadow-lg p-4 sm:max-w-xs w-full sm:w-80 border border-zinc-200 flex flex-col max-h-full sm:max-h-60"
           style={{ maxHeight: '90vh' }}
         >
           <div className="flex justify-between items-center mb-2">
@@ -124,11 +125,9 @@ export default function ShanghaiMap() {
               ×
             </button>
           </div>
-          <div className="prose prose-sm flex-1 overflow-y-auto">
-            {/* TODO: Markdown 渲染，现仅展示原文 */}
-            <pre className="whitespace-pre-wrap text-xs">
-              {selectedAttr.content}
-            </pre>
+          <div className="prose prose-sm flex-1 overflow-y-auto text-xs">
+            {/* Markdown 渲染 */}
+            <ReactMarkdown>{selectedAttr.content}</ReactMarkdown>
           </div>
         </div>
       )}
