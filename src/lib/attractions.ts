@@ -7,7 +7,8 @@ export interface Attraction {
   file: string;
 }
 
-import { markdownEntries } from '../../data/markdownIndex';
+// 动态加载 JSON 数据
+import markdownEntriesRaw from '../../data/markdownIndex.json';
 import matter from 'gray-matter';
 import toml from 'toml';
 
@@ -25,7 +26,9 @@ function parseFrontmatter(md: string): Omit<Attraction, 'file'> {
 }
 
 export function getAttractions(): Attraction[] {
-  return markdownEntries.map(entry => ({
+  // 兼容 import 方式加载 JSON
+  const markdownEntries = markdownEntriesRaw as Array<{ filename: string; content: string }>;
+  return markdownEntries.map((entry: { filename: string; content: string }) => ({
     ...parseFrontmatter(entry.content),
     file: entry.filename,
   }));
