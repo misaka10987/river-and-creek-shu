@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 import toml from 'toml';
 
 const dataDir = join(__dirname, '../data');
-const output = join(dataDir, 'markdownIndex.json');
+const output = join(__dirname, '../public/attractions.json');
 
 const files = readdirSync(dataDir).filter(f => extname(f) === '.md');
 
