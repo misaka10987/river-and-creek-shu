@@ -49,12 +49,8 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         projection: 'EPSG:4326',
       })
       map.centerAndZoom(new TMap.LngLat(121.4737, 31.2304), 12)
-      if (typeof map.enableDrag === 'function') map.enableDrag()
-      if (typeof map.enableScrollWheelZoom === 'function')
-        map.enableScrollWheelZoom()
-      if (typeof map.enableDoubleClickZoom === 'function')
-        map.enableDoubleClickZoom()
-      if (typeof map.enableKeyboard === 'function') map.enableKeyboard()
+      map.enableDrag()
+      map.enableScrollWheelZoom()
       setMapObj(map)
     }
     // 只插入一次 script
@@ -69,7 +65,6 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
     } else {
       initMap()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, attractions])
 
   // 监听地图移动/缩放，更新标签像素坐标
