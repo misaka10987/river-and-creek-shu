@@ -43,8 +43,8 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   useEffect(() => {
     if (loading || attractions.length === 0) return;
     const initMap = () => {
-      if (!(window as any).T || !mapRef.current) return;
-      const TMap = (window as any).T as typeof import('tianditu-v4-types').T;
+      const TMap = (window as unknown as { T: typeof import('tianditu-v4-types').T }).T;
+      if (!TMap || !mapRef.current) return;
       const map = new TMap.Map(mapRef.current, {
         projection: 'EPSG:4326',
       });
@@ -72,7 +72,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   // 监听地图移动/缩放，更新标签像素坐标
   useEffect(() => {
     if (!mapObj || attractions.length === 0) return;
-    const TMap = (window as any).T as typeof import('tianditu-v4-types').T;
+    const TMap = (window as unknown as { T: typeof import('tianditu-v4-types').T }).T;
 
     // 清除旧 marker
     markerRefs.current.forEach(m => mapObj.removeOverLay(m));
@@ -87,9 +87,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
           iconSize: new TMap.Point(24, 24),
         })
       });
-      // @ts-ignore
       marker.data = { file: attr.file, name: attr.name };
-      marker.on('click', () => setSelected(attr.file));
       mapObj.addOverLay(marker);
       return marker;
     });
@@ -100,6 +98,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         const [lat, lng] = attr.coordinate;
         const lnglat = new TMap.LngLat(lng, lat);
         const pt = mapObj.lngLatToContainerPoint(lnglat);
+        
         return { file: attr.file, x: pt.x, y: pt.y, name: attr.name };
       });
       setPoints(arr);
