@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import type { Attraction } from '@/lib/attractions'
 import type { T } from 'tianditu-v4-types'
+import { Button } from './ui/button'
 
 /**
  * 天地图 API 加载器
@@ -149,25 +150,36 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
   }, [mapObj, attractions, setSelected])
 
   return (
-        <div className="relative w-full h-full">
-          <div
-            ref={mapRef}
-            className="w-full aspect-square rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center justify-center"
-            id="shanghai-map"
-            style={{ maxWidth: '100%', maxHeight: '100%', position: 'relative', overflow: 'hidden' }}
-          >
+    <div className="relative w-full h-full">
+      <div
+        ref={mapRef}
+        className="w-full aspect-square rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center justify-center"
+        id="shanghai-map"
+        style={{
+          maxWidth: '100%',
+          maxHeight: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
         {/* 拖拽/缩放时隐藏 DOM 标签，显示原生 marker */}
         {!dragging && points.length > 0 && (
           <>
             {points.map((pt) => (
-              <button
+              <Button
                 key={pt.file + '-' + labelKey}
-                className={`absolute z-1000 -translate-x-1/2 -translate-y-full px-2 py-1 rounded bg-primary text-primary-foreground text-xs shadow border border-primary transition-opacity duration-500 opacity-0 animate-fadein ${selected === pt.file ? 'ring-2 ring-primary' : ''}`}
-                style={{ left: pt.x, top: pt.y, pointerEvents: 'auto', animation: 'fadein 0.5s forwards' }}
+                className={`absolute z-1000 -translate-x-1/2 -translate-y-full active:-translate-y-full px-2 py-1 rounded text-xs shadow transition-opacity duration-500 opacity-0 animate-fadein`}
+                style={{
+                  left: pt.x,
+                  top: pt.y,
+                  pointerEvents: 'auto',
+                  animation: 'fadein 0.5s forwards',
+                }}
+                size={'xs'}
                 onClick={() => setSelected(pt.file)}
               >
                 {pt.name}
-              </button>
+              </Button>
             ))}
             <style>{`
               @keyframes fadein {
