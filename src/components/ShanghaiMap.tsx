@@ -163,32 +163,35 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         }}
       >
         {/* 拖拽/缩放时隐藏 DOM 标签，显示原生 marker */}
-        {!dragging && points.length > 0 && (
-          <>
-            {points.map((pt) => (
-              <Button
-                key={pt.file + '-' + labelKey}
-                className={`absolute z-1000 -translate-x-1/2 -translate-y-full active:-translate-y-full px-2 py-1 rounded text-xs shadow transition-opacity duration-500 opacity-0 animate-fadein`}
-                style={{
-                  left: pt.x,
-                  top: pt.y,
-                  pointerEvents: 'auto',
-                  animation: 'fadein 0.5s forwards',
-                }}
-                size={'xs'}
-                onClick={() => setSelected(pt.file)}
-              >
-                {pt.name}
-              </Button>
-            ))}
-            <style>{`
+        {!dragging &&
+          points.length > 0 &&
+          mapObj != null &&
+          mapObj.getZoom() >= 12 && (
+            <>
+              {points.map((pt) => (
+                <Button
+                  key={pt.file + '-' + labelKey}
+                  className={`absolute z-1000 -translate-x-1/2 -translate-y-full active:-translate-y-full px-2 py-1 rounded text-xs shadow transition-opacity duration-500 opacity-0 animate-fadein`}
+                  style={{
+                    left: pt.x,
+                    top: pt.y,
+                    pointerEvents: 'auto',
+                    animation: 'fadein 0.5s forwards',
+                  }}
+                  size={'xs'}
+                  onClick={() => setSelected(pt.file)}
+                >
+                  {pt.name}
+                </Button>
+              ))}
+              <style>{`
               @keyframes fadein {
                 from { opacity: 0; }
                 to { opacity: 1; }
               }
             `}</style>
-          </>
-        )}
+            </>
+          )}
       </div>
     </div>
   )
