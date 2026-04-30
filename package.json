@@ -6,9 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "predev": "bun run scripts/generateAttractionsJson.ts",
-    "prebuild": "bun run scripts/generateAttractionsJson.ts",
-    "watch:markdown": "bun run scripts/generateAttractionsJson.ts && chokidar 'data/*.md' -c 'bun run scripts/generateAttractionsJson.ts'",
+    "predev": "bun run scripts/preprocess.ts",
+    "prebuild": "bun run scripts/preprocess.ts",
+    "watch:markdown": "bun run scripts/preprocess.ts && chokidar 'data/*.md' -c 'bun run scripts/preprocess.ts'",
     "lint": "eslint"
   },
   "dependencies": {
