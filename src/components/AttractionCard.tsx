@@ -34,7 +34,9 @@ export default function AttractionCard({ attraction, onClose }: Props) {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <ReactMarkdown>{attraction.content}</ReactMarkdown>
+          <article className="[&_img]:w-full">
+            <ReactMarkdown>{attraction.content}</ReactMarkdown>
+          </article>
         </CardContent>
         {/* <CardFooter>
           <p>Card Footer</p>
