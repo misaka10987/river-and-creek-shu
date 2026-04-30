@@ -32,7 +32,7 @@ const packageMarkdownJson = async () => {
 
   const attractions = await Promise.all(entries)
 
-  await writeFile(output, JSON.stringify(attractions, null, 2))
+  await writeFile(output, JSON.stringify(attractions))
   console.log(`Wrote packaged markdown to ${output}`)
 }
 
