@@ -1,16 +1,18 @@
-import { join, extname } from 'path'
+import path from 'path'
 import matter from 'gray-matter'
 import toml from 'toml'
-import { readdir, readFile, writeFile } from 'fs/promises'
+import { copyFile, cp, readdir, readFile, writeFile } from 'fs/promises'
 
 const packageMarkdownJson = async () => {
-  const dataDir = join(__dirname, '../data')
-  const output = join(__dirname, '../public/attractions.json')
+  const dataDir = path.join(__dirname, '../data')
+  const output = path.join(__dirname, '../public/attractions.json')
 
-  const files = (await readdir(dataDir)).filter((f) => extname(f) === '.md')
+  const files = (await readdir(dataDir)).filter(
+    (f) => path.extname(f) === '.md',
+  )
 
   const entries = files.map(async (filename) => {
-    const content = await readFile(join(dataDir, filename), 'utf-8')
+    const content = await readFile(path.join(dataDir, filename), 'utf-8')
     const parsed = matter(content, {
       engines: { toml: toml.parse.bind(toml) },
       language: 'toml',
@@ -34,4 +36,14 @@ const packageMarkdownJson = async () => {
   console.log(`Wrote packaged markdown to ${output}`)
 }
 
+const copyImages = async () => {
+  const imageDir = path.join(__dirname, '../data/image')
+  const outputDir = path.join(__dirname, '../public/image')
+
+  await cp(imageDir, outputDir, { recursive: true })
+
+  console.log(`Copied images from ${imageDir} to ${outputDir}`)
+}
+
 await packageMarkdownJson()
+await copyImages()
