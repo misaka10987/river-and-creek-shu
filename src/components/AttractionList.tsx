@@ -19,19 +19,21 @@ export default function AttractionList({ onSelect, selected }: Props) {
   }, [])
 
   return (
-    <div className="grid grid-cols-2 justify-center gap-2 bg-white/80 rounded-lg p-2 shadow border border-zinc-200 backdrop-blur-sm">
-      {attractions.map((attr) => (
-        <div key={attr.file} className='items-center flex justify-center'>
-          <Button
-            variant={selected === attr.file ? 'secondary' : 'outline'}
-            size="sm"
-            onClick={() => onSelect(attr.file)}
-            className="w-32 truncate"
-          >
-            {attr.name}
-          </Button>
-        </div>
-      ))}
-    </div>
+    <details>
+      <div className="grid grid-cols-2 justify-center gap-2 bg-white/80 p-2 backdrop-blur-sm">
+        {attractions.map((attr) => (
+          <div key={attr.file} className="items-center flex justify-center">
+            <Button
+              variant={selected === attr.file ? 'secondary' : 'outline'}
+              size="sm"
+              onClick={() => onSelect(attr.file)}
+              className="w-32 truncate"
+            >
+              {attr.name}
+            </Button>
+          </div>
+        ))}
+      </div>
+    </details>
   )
 }
