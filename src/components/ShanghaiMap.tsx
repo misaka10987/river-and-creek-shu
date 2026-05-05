@@ -21,6 +21,11 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
   >([])
   const [dragging, setDragging] = useState(false)
 
+  const withinRoute = ({ name }: { name: string }) => {
+    if (route == null) return true
+    return route.points.find((routeName) => routeName == name) != undefined
+  }
+
   // 加载景点数据
   useEffect(() => {
     fetch('/attractions.json')
@@ -73,7 +78,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     markerRefs.current = []
 
     // 生成并添加 marker
-    const markers = attractions.map((attr) => {
+    const markers = attractions.filter(withinRoute).map((attr) => {
       const [lat, lng] = attr.coordinate
       const lnglat = new TMap.LngLat(lng, lat)
       const marker = new TMap.Marker(lnglat, {
@@ -160,7 +165,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
           mapObj != null &&
           mapObj.getZoom() >= 12 && (
             <>
-              {points.map((pt) => (
+              {points.filter(withinRoute).map((pt) => (
                 <Button
                   key={pt.file}
                   className="absolute z-1000 -translate-x-1/2 -translate-y-full active:-translate-y-full px-2 py-1 rounded text-xs shadow transition-opacity duration-500 opacity-0 animate-fadein"
