@@ -15,7 +15,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
   const [attractions, setAttractions] = useState<Attraction[]>([])
   const [loading, setLoading] = useState(true)
   // T.Map 类型无法直接引入，使用 unknown
-  const [mapObj, setMapObj] = useState<T.Map | null>(null)
+  const [map, setMap] = useState<T.Map | null>(null)
   const [points, setPoints] = useState<
     { file: string; x: number; y: number; name: string }[]
   >([])
@@ -49,7 +49,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
       map.centerAndZoom(new TMap.LngLat(121.467167, 31.23545), 14)
       map.disableInertia()
       map.enableDrag()
-      setMapObj(map)
+      setMap(map)
     }
     // 只插入一次 script
     if (!document.getElementById('tianditu-script')) {
@@ -69,13 +69,13 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
   const markerRefs = useRef<T.Marker[]>([])
 
   useEffect(() => {
-    if (!mapObj || attractions.length === 0) return
+    if (!map) return
     const TMap = (
       window as unknown as { T: typeof import('tianditu-v4-types').T }
     ).T
 
     // 清除旧 marker
-    markerRefs.current.forEach((m) => mapObj.removeOverLay(m))
+    map.clearOverLays()
     markerRefs.current = []
 
     // 生成并添加 marker
@@ -89,33 +89,33 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
         }),
       })
       marker.data = { file: attr.file, name: attr.name }
-      mapObj.addOverLay(marker)
+      map.addOverLay(marker)
       return marker
     })
     markerRefs.current = markers
-  }, [mapObj, attractions, route])
+  }, [map, attractions, route])
 
   // 仅拦截滚轮缩放，手动缩放地图
   useEffect(() => {
-    if (!mapObj || !mapRef.current) return
+    if (!map || !mapRef.current) return
     const el = mapRef.current
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
       if (e.deltaY < 0) {
-        mapObj.zoomIn()
+        map.zoomIn()
       } else if (e.deltaY > 0) {
-        mapObj.zoomOut()
+        map.zoomOut()
       }
     }
     el.addEventListener('wheel', handleWheel, { passive: false })
     return () => {
       el.removeEventListener('wheel', handleWheel)
     }
-  }, [mapObj])
+  }, [map])
 
   // 监听地图移动/缩放，更新标签像素坐标
   useEffect(() => {
-    if (!mapObj || attractions.length === 0) return
+    if (!map) return
     const TMap = (
       window as unknown as { T: typeof import('tianditu-v4-types').T }
     ).T
@@ -124,7 +124,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
       const arr = attractions.map((attr) => {
         const [lat, lng] = attr.coordinate
         const lnglat = new TMap.LngLat(lng, lat)
-        const pt = mapObj.lngLatToContainerPoint(lnglat)
+        const pt = map.lngLatToContainerPoint(lnglat)
 
         return { file: attr.file, x: pt.x, y: pt.y, name: attr.name }
       })
@@ -137,21 +137,21 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     const handleMoveStart = () => setDragging(true)
     const handleMoveEnd = () => setDragging(false)
 
-    mapObj.on('movestart', handleMoveStart)
-    mapObj.on('zoomstart', handleMoveStart)
-    mapObj.on('moveend', handleMoveEnd)
-    mapObj.on('zoomend', handleMoveEnd)
-    mapObj.on('moveend', updatePoints)
-    mapObj.on('zoomend', updatePoints)
+    map.on('movestart', handleMoveStart)
+    map.on('zoomstart', handleMoveStart)
+    map.on('moveend', handleMoveEnd)
+    map.on('zoomend', handleMoveEnd)
+    map.on('moveend', updatePoints)
+    map.on('zoomend', updatePoints)
     return () => {
-      mapObj.off('movestart', handleMoveStart)
-      mapObj.off('zoomstart', handleMoveStart)
-      mapObj.off('moveend', handleMoveEnd)
-      mapObj.off('zoomend', handleMoveEnd)
-      mapObj.off('moveend', updatePoints)
-      mapObj.off('zoomend', updatePoints)
+      map.off('movestart', handleMoveStart)
+      map.off('zoomstart', handleMoveStart)
+      map.off('moveend', handleMoveEnd)
+      map.off('zoomend', handleMoveEnd)
+      map.off('moveend', updatePoints)
+      map.off('zoomend', updatePoints)
     }
-  }, [mapObj, attractions, onSelect])
+  }, [map, attractions, onSelect])
 
   return (
     <div className="relative w-full h-full">
@@ -163,8 +163,8 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
         {/* 拖拽/缩放时隐藏 DOM 标签，显示原生 marker */}
         {!dragging &&
           points.length > 0 &&
-          mapObj != null &&
-          mapObj.getZoom() >= 12 && (
+          map != null &&
+          map.getZoom() >= 12 && (
             <>
               {points.filter(withinRoute).map((pt) => (
                 <Button
