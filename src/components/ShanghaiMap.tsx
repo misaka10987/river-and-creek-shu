@@ -47,6 +47,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
       if (!TMap || !mapRef.current) return
       const map = new TMap.Map(mapRef.current)
       map.centerAndZoom(new TMap.LngLat(121.467167, 31.23545), 14)
+      map.disableInertia()
       map.enableDrag()
       setMapObj(map)
     }
