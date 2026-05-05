@@ -1,15 +1,16 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
-import type { Attraction } from '@/lib/attractions'
-import type { T } from 'tianditu-v4-types'
+import { Attraction, Route } from '@/lib/attractions'
+import { T } from 'tianditu-v4-types'
 import { Button } from './ui/button'
 
 interface Props {
+  route: Route | null
   onSelect: (file: string | null) => void
 }
 
-export default function ShanghaiMap({ onSelect: setSelected }: Props) {
+export default function ShanghaiMap({ onSelect, route }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [attractions, setAttractions] = useState<Attraction[]>([])
   const [loading, setLoading] = useState(true)
@@ -19,10 +20,6 @@ export default function ShanghaiMap({ onSelect: setSelected }: Props) {
     { file: string; x: number; y: number; name: string }[]
   >([])
   const [dragging, setDragging] = useState(false)
-  // 控制标签淡入动画的 key
-  const [labelKey, setLabelKey] = useState(0)
-  // 直接管理 marker 实例数组
-  const markerRefs = useRef<T.Marker[]>([])
 
   // 加载景点数据
   useEffect(() => {
@@ -62,6 +59,36 @@ export default function ShanghaiMap({ onSelect: setSelected }: Props) {
     }
   }, [loading, attractions])
 
+  // 直接管理 marker 实例数组
+  const markerRefs = useRef<T.Marker[]>([])
+
+  useEffect(() => {
+    if (!mapObj || attractions.length === 0) return
+    const TMap = (
+      window as unknown as { T: typeof import('tianditu-v4-types').T }
+    ).T
+
+    // 清除旧 marker
+    markerRefs.current.forEach((m) => mapObj.removeOverLay(m))
+    markerRefs.current = []
+
+    // 生成并添加 marker
+    const markers = attractions.map((attr) => {
+      const [lat, lng] = attr.coordinate
+      const lnglat = new TMap.LngLat(lng, lat)
+      const marker = new TMap.Marker(lnglat, {
+        icon: new TMap.Icon({
+          iconUrl: 'https://api.tianditu.gov.cn/img/map/marker.png',
+          iconSize: new TMap.Point(24, 24),
+        }),
+      })
+      marker.data = { file: attr.file, name: attr.name }
+      mapObj.addOverLay(marker)
+      return marker
+    })
+    markerRefs.current = markers
+  }, [mapObj, attractions, route])
+
   // 仅拦截滚轮缩放，手动缩放地图
   useEffect(() => {
     if (!mapObj || !mapRef.current) return
@@ -87,25 +114,6 @@ export default function ShanghaiMap({ onSelect: setSelected }: Props) {
       window as unknown as { T: typeof import('tianditu-v4-types').T }
     ).T
 
-    // 清除旧 marker
-    markerRefs.current.forEach((m) => mapObj.removeOverLay(m))
-    markerRefs.current = []
-    // 生成并添加 marker
-    const markers = attractions.map((attr) => {
-      const [lat, lng] = attr.coordinate
-      const lnglat = new TMap.LngLat(lng, lat)
-      const marker = new TMap.Marker(lnglat, {
-        icon: new TMap.Icon({
-          iconUrl: 'https://api.tianditu.gov.cn/img/map/marker.png',
-          iconSize: new TMap.Point(24, 24),
-        }),
-      })
-      marker.data = { file: attr.file, name: attr.name }
-      mapObj.addOverLay(marker)
-      return marker
-    })
-    markerRefs.current = markers
-
     const updatePoints = () => {
       const arr = attractions.map((attr) => {
         const [lat, lng] = attr.coordinate
@@ -116,16 +124,13 @@ export default function ShanghaiMap({ onSelect: setSelected }: Props) {
       })
       setPoints(arr)
     }
+
     updatePoints()
 
     // 拖拽/缩放事件处理
     const handleMoveStart = () => setDragging(true)
-    const handleMoveEnd = () => {
-      setDragging(false)
-      updatePoints()
-      // 触发标签重新渲染以实现淡入
-      setLabelKey((k) => k + 1)
-    }
+    const handleMoveEnd = () => setDragging(false)
+
     mapObj.on('movestart', handleMoveStart)
     mapObj.on('zoomstart', handleMoveStart)
     mapObj.on('moveend', handleMoveEnd)
@@ -140,20 +145,14 @@ export default function ShanghaiMap({ onSelect: setSelected }: Props) {
       mapObj.off('moveend', updatePoints)
       mapObj.off('zoomend', updatePoints)
     }
-  }, [mapObj, attractions, setSelected])
+  }, [mapObj, attractions, onSelect])
 
   return (
     <div className="relative w-full h-full">
       <div
         ref={mapRef}
-        className="w-full aspect-square rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center justify-center"
+        className="relative overflow-hidden max-w-full max-h-full w-full aspect-square rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center justify-center"
         id="shanghai-map"
-        style={{
-          maxWidth: '100%',
-          maxHeight: '100%',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
       >
         {/* 拖拽/缩放时隐藏 DOM 标签，显示原生 marker */}
         {!dragging &&
@@ -163,8 +162,8 @@ export default function ShanghaiMap({ onSelect: setSelected }: Props) {
             <>
               {points.map((pt) => (
                 <Button
-                  key={pt.file + '-' + labelKey}
-                  className={`absolute z-1000 -translate-x-1/2 -translate-y-full active:-translate-y-full px-2 py-1 rounded text-xs shadow transition-opacity duration-500 opacity-0 animate-fadein`}
+                  key={pt.file}
+                  className="absolute z-1000 -translate-x-1/2 -translate-y-full active:-translate-y-full px-2 py-1 rounded text-xs shadow transition-opacity duration-500 opacity-0 animate-fadein"
                   style={{
                     left: pt.x,
                     top: pt.y,
@@ -172,7 +171,7 @@ export default function ShanghaiMap({ onSelect: setSelected }: Props) {
                     animation: 'fadein 0.5s forwards',
                   }}
                   size={'xs'}
-                  onClick={() => setSelected(pt.file)}
+                  onClick={() => onSelect(pt.file)}
                 >
                   {pt.name}
                 </Button>
