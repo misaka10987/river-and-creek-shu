@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Route } from '@/lib/attractions'
 
 interface Props {
-  onSelect: (route: Route) => void
+  onSelect: (route: Route | null) => void
   selected: Route | null
 }
 
@@ -19,13 +19,16 @@ export default function RouteList({ onSelect, selected }: Props) {
   }, [])
 
   return (
-    <div>
+    <div className='flex flex-col gap-2'>
       {routes.map((route) => (
         <div key={route.file} className="items-center flex justify-center">
           <Button
             variant={selected?.name === route.name ? 'secondary' : 'outline'}
             size="sm"
-            onClick={() => onSelect(route)}
+            onClick={() => {
+              if (selected?.name == route.name) onSelect(null)
+              else onSelect(route)
+            }}
             className="w-full truncate"
           >
             {route.name}
