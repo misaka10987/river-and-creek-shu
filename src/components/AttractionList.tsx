@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import type { Attraction } from '@/lib/attractions'
+import { Attraction } from '@/lib/attractions'
 
 interface Props {
   onSelect: (file: string) => void
@@ -15,7 +15,7 @@ export default function AttractionList({ onSelect, selected }: Props) {
   useEffect(() => {
     fetch('/attractions.json')
       .then((res) => res.json())
-      .then((data) => setAttractions(data))
+      .then(setAttractions)
   }, [])
 
   return (

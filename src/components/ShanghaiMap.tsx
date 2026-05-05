@@ -48,9 +48,7 @@ export default function ShanghaiMap({ selected, setSelected }: Props) {
         window as unknown as { T: typeof import('tianditu-v4-types').T }
       ).T
       if (!TMap || !mapRef.current) return
-      const map = new TMap.Map(mapRef.current, {
-        projection: 'EPSG:4326',
-      })
+      const map = new TMap.Map(mapRef.current)
       map.centerAndZoom(new TMap.LngLat(121.467167, 31.23545), 14)
       map.enableDrag()
       setMapObj(map)

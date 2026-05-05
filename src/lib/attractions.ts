@@ -5,3 +5,10 @@ export interface Attraction {
   content: string
   file: string
 }
+
+export interface Route {
+  name: string
+  points: string[]
+  content: string
+  file: string
+}
