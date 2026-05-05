@@ -5,16 +5,11 @@ import type { Attraction } from '@/lib/attractions'
 import type { T } from 'tianditu-v4-types'
 import { Button } from './ui/button'
 
-/**
- * 天地图 API 加载器
- * 仅在客户端渲染时加载
- */
 interface Props {
-  selected: string | null
-  setSelected: (file: string | null) => void
+  onSelect: (file: string | null) => void
 }
 
-export default function ShanghaiMap({ selected, setSelected }: Props) {
+export default function ShanghaiMap({ onSelect: setSelected }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [attractions, setAttractions] = useState<Attraction[]>([])
   const [loading, setLoading] = useState(true)

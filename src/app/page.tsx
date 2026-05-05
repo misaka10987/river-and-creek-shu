@@ -41,10 +41,7 @@ export default function Home() {
           {/* 中间：地图 */}
           <div className="flex-1 min-w-0 order-1 sm:order-2 flex justify-center items-stretch">
             <div className="w-full h-100 sm:h-150 md:h-175 lg:h-200 max-w-4xl">
-              <ShanghaiMap
-                selected={selectedAttraction}
-                setSelected={setSelectedAttraction}
-              />
+              <ShanghaiMap onSelect={setSelectedAttraction} />
             </div>
           </div>
           {/* 右侧：介绍卡片，仅桌面端显示 */}
