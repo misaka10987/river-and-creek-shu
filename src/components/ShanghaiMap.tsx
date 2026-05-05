@@ -65,6 +65,23 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     }
   }, [loading, attractions])
 
+  useEffect(() => {
+    if (!map) return
+    if (!route) return
+    if (route.points.length == 0) return
+
+    const point = route.points[0]
+    const attr = attractions.find((a) => a.name == point)
+
+    if (!attr) return
+
+    const [lat, lng] = attr.coordinate
+    const TMap = (
+      window as unknown as { T: typeof import('tianditu-v4-types').T }
+    ).T
+    map.panTo(new TMap.LngLat(lng, lat))
+  }, [route])
+
   // 直接管理 marker 实例数组
   const markerRefs = useRef<T.Marker[]>([])
 
