@@ -6,16 +6,14 @@ import { Button } from './ui/button'
 import { Data, Route } from '@/lib/data'
 
 interface Props {
+  data: Data
   route: Route | null
   onSelect: (file: string | null) => void
 }
 
-export default function ShanghaiMap({ onSelect, route }: Props) {
+export default function ShanghaiMap({ data, onSelect, route }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
 
-  const [data, setData] = useState<Data | null>(null)
-
-  const [loading, setLoading] = useState(true)
   // T.Map 类型无法直接引入，使用 unknown
   const [map, setMap] = useState<T.Map | null>(null)
   const [points, setPoints] = useState<
@@ -28,20 +26,9 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     return route.points.find((routeName) => routeName == name) != undefined
   }
 
-  // 加载景点数据
-  useEffect(() => {
-    fetch('/data.json')
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [])
-
   // 初始化地图和标签点
   useEffect(() => {
-    if (loading || !data || data.attractions.length === 0) return
+    if (!data || data.attractions.length === 0) return
     const initMap = () => {
       const TMap = (
         window as unknown as { T: typeof import('tianditu-v4-types').T }
@@ -65,7 +52,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     } else {
       initMap()
     }
-  }, [loading, data])
+  }, [data])
 
   useEffect(() => {
     if (!map) return
@@ -73,7 +60,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     if (route.points.length == 0) return
 
     const point = route.points[0]
-    const attr = data?.attractions.find((a) => a.name == point)
+    const attr = data.attractions.find((a) => a.name == point)
 
     if (!attr) return
 
@@ -98,7 +85,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     markerRefs.current = []
 
     // 生成并添加 marker
-    const markers = data?.attractions.filter(withinRoute).map((attr) => {
+    const markers = data.attractions.filter(withinRoute).map((attr) => {
       const [lat, lng] = attr.coordinate
       const lnglat = new TMap.LngLat(lng, lat)
       const marker = new TMap.Marker(lnglat, {
@@ -141,7 +128,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     ).T
 
     const updatePoints = () => {
-      const arr = data?.attractions.map((attr) => {
+      const arr = data.attractions.map((attr) => {
         const [lat, lng] = attr.coordinate
         const lnglat = new TMap.LngLat(lng, lat)
         const pt = map.lngLatToContainerPoint(lnglat)

@@ -1,26 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Data, Route } from '@/lib/data'
 
 interface Props {
+  data: Data
   onSelect: (route: Route | null) => void
   selected: Route | null
 }
 
-export default function RouteList({ onSelect, selected }: Props) {
-  const [data, setData] = useState<Data | null>(null)
-
-  useEffect(() => {
-    fetch('/data.json')
-      .then((res) => res.json())
-      .then(setData)
-  }, [])
-
+export default function RouteList({ data, onSelect, selected }: Props) {
   return (
     <div className="flex flex-col gap-2">
-      {data?.routes.map((route) => (
+      {data.routes.map((route) => (
         <div key={route.name} className="items-center flex justify-center">
           <Button
             variant={selected?.name === route.name ? 'secondary' : 'outline'}
