@@ -5,8 +5,8 @@ import { Data, Route } from '@/lib/data'
 
 interface Props {
   data: Data
-  onSelect: (route: Route | null) => void
-  selected: Route | null
+  onSelect?: (route?: Route) => void
+  selected?: string
 }
 
 export default function RouteList({ data, onSelect, selected }: Props) {
@@ -15,11 +15,11 @@ export default function RouteList({ data, onSelect, selected }: Props) {
       {data.routes.map((route) => (
         <div key={route.name} className="items-center flex justify-center">
           <Button
-            variant={selected?.name === route.name ? 'secondary' : 'outline'}
+            variant={selected == route.name ? 'secondary' : 'outline'}
             size="sm"
             onClick={() => {
-              if (selected?.name == route.name) onSelect(null)
-              else onSelect(route)
+              if (selected == route.name) onSelect?.(undefined)
+              else onSelect?.(route)
             }}
             className="w-full truncate"
           >

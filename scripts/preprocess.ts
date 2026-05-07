@@ -2,7 +2,7 @@ import path from 'path'
 import matter from 'gray-matter'
 import toml from 'toml'
 import { cp, readdir, readFile, writeFile } from 'fs/promises'
-import { Data, Route, Attraction, MarkdownContent } from '@/lib/data'
+import { Data, RouteMeta, AttractionMeta, Attraction, Route } from '@/lib/data'
 
 const packageData = async () => {
   const dataDir = path.join(__dirname, '../data')
@@ -10,8 +10,8 @@ const packageData = async () => {
 
   const files = (await readdir(dataDir)).filter((f) => path.extname(f) == '.md')
 
-  let attractions: (Attraction & MarkdownContent)[] = []
-  let routes: (Route & MarkdownContent)[] = []
+  let attractions: Attraction[] = []
+  let routes: Route[] = []
 
   for (const file of files) {
     const content = await readFile(path.join(dataDir, file), 'utf-8')
@@ -21,7 +21,7 @@ const packageData = async () => {
       delimiters: '+++',
     })
 
-    const frontmatter = parsed.data as Attraction | { route: Route }
+    const frontmatter = parsed.data as AttractionMeta | { route: RouteMeta }
 
     if ('route' in frontmatter) {
       routes.push({ ...frontmatter.route, content: parsed.content.trim() })

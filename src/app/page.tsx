@@ -3,17 +3,16 @@ import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 
 import AttractionList from '@/components/AttractionList'
-// import AttractionCard from "@/components/AttractionCard"; // 由 AttractionCardWrapper 内部使用，无需在此引入
-import AttractionCardWrapper from '@/components/AttractionCardWrapper'
 import RouteList from '@/components/RouteList'
-import { Data, Route } from '@/lib/data'
+import { Attraction, Data, Route } from '@/lib/data'
+import Introduction from '@/components/Introduction'
 
 const ShanghaiMap = dynamic(() => import('@/components/ShanghaiMap'), {
   ssr: false,
 })
 
 export default function Home() {
-  const [data, setData] = useState<Data | null>(null)
+  const [data, setData] = useState<Data | undefined>(undefined)
 
   useEffect(() => {
     fetch('/data.json')
@@ -21,10 +20,12 @@ export default function Home() {
       .then(setData)
   }, [])
 
-  const [selectedAttraction, setSelectedAttraction] = useState<string | null>(
-    null,
+  const [selectedAttraction, setSelectedAttraction] = useState<
+    Attraction | undefined
+  >(undefined)
+  const [selectedRoute, setSelectedRoute] = useState<Route | undefined>(
+    undefined,
   )
-  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null)
 
   return (
     <div className="flex flex-col flex-1 items-center justify-start min-h-screen bg-zinc-50 font-sans dark:bg-black">
@@ -43,14 +44,14 @@ export default function Home() {
                 <RouteList
                   data={data}
                   onSelect={setSelectedRoute}
-                  selected={selectedRoute}
+                  selected={selectedRoute?.name}
                 />
               )}
               {data && (
                 <AttractionList
                   data={data}
                   onSelect={setSelectedAttraction}
-                  selected={selectedAttraction}
+                  selected={selectedAttraction?.name}
                 />
               )}
             </div>
@@ -62,34 +63,47 @@ export default function Home() {
                 <ShanghaiMap
                   data={data}
                   onSelect={setSelectedAttraction}
-                  route={selectedRoute}
+                  route={selectedRoute ?? undefined}
                 />
               )}
             </div>
           </div>
           {/* 右侧：介绍卡片，仅桌面端显示 */}
           <div className="hidden sm:block w-0 sm:w-72 md:w-80 shrink-0 order-3">
-            {/* AttractionCard 只在有选中时显示 */}
-            {data && (
-              <AttractionCardWrapper
-                data={data}
-                selected={selectedAttraction}
-                onClose={() => setSelectedAttraction(null)}
-              />
-            )}
+            {data &&
+              (selectedRoute ? (
+                <Introduction
+                  head={selectedRoute}
+                  content={selectedRoute.content}
+                  onClose={() => setSelectedRoute(undefined)}
+                />
+              ) : selectedAttraction ? (
+                <Introduction
+                  head={selectedAttraction}
+                  content={selectedAttraction.content}
+                  onClose={() => setSelectedAttraction(undefined)}
+                />
+              ) : null)}
           </div>
         </div>
         {/* 移动端卡片浮层 */}
         {selectedAttraction && (
           <div className="sm:hidden fixed inset-0 z-1000 bg-black/40 flex items-end">
             <div className="w-full bg-white dark:bg-zinc-900 rounded-t-2xl shadow-lg p-4 max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom-10">
-              {data && (
-                <AttractionCardWrapper
-                  data={data}
-                  selected={selectedAttraction}
-                  onClose={() => setSelectedAttraction(null)}
-                />
-              )}
+              {data &&
+                (selectedRoute ? (
+                  <Introduction
+                    head={selectedRoute}
+                    content={selectedRoute.content}
+                    onClose={() => setSelectedRoute(undefined)}
+                  />
+                ) : selectedAttraction ? (
+                  <Introduction
+                    head={selectedAttraction}
+                    content={selectedAttraction.content}
+                    onClose={() => setSelectedAttraction(undefined)}
+                  />
+                ) : null)}
             </div>
           </div>
         )}

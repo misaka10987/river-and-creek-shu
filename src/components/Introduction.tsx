@@ -8,20 +8,25 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from './ui/button'
-import { Attraction, MarkdownContent } from '@/lib/data'
+import { AttractionMeta, MarkdownContent, RouteMeta } from '@/lib/data'
 
 interface Props {
-  attraction: Attraction & MarkdownContent
-  onClose: () => void
+  head: AttractionMeta | RouteMeta
+  content: string
+  onClose?: () => void
 }
 
-export default function AttractionCard({ attraction, onClose }: Props) {
+export default function Introduction({ head, content, onClose }: Props) {
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle>{attraction.name}</CardTitle>
-          <CardDescription>{attraction.coordinate.join(', ')}</CardDescription>
+          <CardTitle>{head.name}</CardTitle>
+          <CardDescription>
+            {'coordinate' in head
+              ? head.coordinate.join(', ')
+              : head.points.join(', ')}
+          </CardDescription>
           <CardAction>
             <Button
               variant={'ghost'}
@@ -35,7 +40,7 @@ export default function AttractionCard({ attraction, onClose }: Props) {
         </CardHeader>
         <CardContent>
           <article className="[&_img]:w-full">
-            <ReactMarkdown>{attraction.content}</ReactMarkdown>
+            <ReactMarkdown>{content}</ReactMarkdown>
           </article>
         </CardContent>
         {/* <CardFooter>

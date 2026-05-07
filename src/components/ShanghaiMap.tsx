@@ -3,12 +3,12 @@
 import { useRef, useState, useEffect } from 'react'
 import { T } from 'tianditu-v4-types'
 import { Button } from './ui/button'
-import { Data, Route } from '@/lib/data'
+import { Attraction, Data, RouteMeta } from '@/lib/data'
 
 interface Props {
   data: Data
-  route: Route | null
-  onSelect: (file: string | null) => void
+  route?: RouteMeta
+  onSelect?: (attraction?: Attraction) => void
 }
 
 export default function ShanghaiMap({ data, onSelect, route }: Props) {
@@ -184,7 +184,11 @@ export default function ShanghaiMap({ data, onSelect, route }: Props) {
                     animation: 'fadein 0.5s forwards',
                   }}
                   size={'xs'}
-                  onClick={() => onSelect(pt.name)}
+                  onClick={() =>
+                    onSelect?.(
+                      data.attractions.find((attr) => attr.name == pt.name),
+                    )
+                  }
                 >
                   {pt.name}
                 </Button>
