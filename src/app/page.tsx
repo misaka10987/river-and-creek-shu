@@ -6,7 +6,7 @@ import AttractionList from '@/components/AttractionList'
 // import AttractionCard from "@/components/AttractionCard"; // 由 AttractionCardWrapper 内部使用，无需在此引入
 import AttractionCardWrapper from '@/components/AttractionCardWrapper'
 import RouteList from '@/components/RouteList'
-import { Route } from '@/lib/attractions'
+import { Route } from '@/lib/data'
 
 const ShanghaiMap = dynamic(() => import('@/components/ShanghaiMap'), {
   ssr: false,

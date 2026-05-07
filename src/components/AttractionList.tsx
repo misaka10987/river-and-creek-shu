@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Attraction } from '@/lib/attractions'
+import { Data } from '@/lib/data'
 
 interface Props {
   onSelect: (file: string) => void
@@ -10,23 +10,23 @@ interface Props {
 }
 
 export default function AttractionList({ onSelect, selected }: Props) {
-  const [attractions, setAttractions] = useState<Attraction[]>([])
+  const [data, setData] = useState<Data | null>(null)
 
   useEffect(() => {
-    fetch('/attractions.json')
+    fetch('/data.json')
       .then((res) => res.json())
-      .then(setAttractions)
+      .then(setData)
   }, [])
 
   return (
     <details>
       <div className="grid grid-cols-2 justify-center gap-2 bg-white/80 p-2 backdrop-blur-sm">
-        {attractions.map((attr) => (
-          <div key={attr.file} className="items-center flex justify-center">
+        {data?.attractions.map((attr) => (
+          <div key={attr.name} className="items-center flex justify-center">
             <Button
-              variant={selected === attr.file ? 'secondary' : 'outline'}
+              variant={selected === attr.name ? 'secondary' : 'outline'}
               size="sm"
-              onClick={() => onSelect(attr.file)}
+              onClick={() => onSelect(attr.name)}
               className="w-32 truncate"
             >
               {attr.name}

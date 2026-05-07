@@ -2,71 +2,38 @@ import path from 'path'
 import matter from 'gray-matter'
 import toml from 'toml'
 import { cp, readdir, readFile, writeFile } from 'fs/promises'
+import { Data, Route, Attraction, MarkdownContent } from '@/lib/data'
 
-const packageAttractionJson = async () => {
+const packageData = async () => {
   const dataDir = path.join(__dirname, '../data')
-  const output = path.join(__dirname, '../public/attractions.json')
+  const output = path.join(__dirname, '../public/data.json')
 
-  const files = (await readdir(dataDir)).filter(
-    (f) => path.extname(f) === '.md',
-  )
+  const files = (await readdir(dataDir)).filter((f) => path.extname(f) == '.md')
 
-  const entries = files.map(async (filename) => {
-    const content = await readFile(path.join(dataDir, filename), 'utf-8')
+  let attractions: (Attraction & MarkdownContent)[] = []
+  let routes: (Route & MarkdownContent)[] = []
+
+  for (const file of files) {
+    const content = await readFile(path.join(dataDir, file), 'utf-8')
     const parsed = matter(content, {
       engines: { toml: toml.parse.bind(toml) },
       language: 'toml',
       delimiters: '+++',
     })
-    const { name, coordinate } = parsed.data as {
-      name: string
-      coordinate: [number, number]
+
+    const frontmatter = parsed.data as Attraction | { route: Route }
+
+    if ('route' in frontmatter) {
+      routes.push({ ...frontmatter.route, content: parsed.content.trim() })
+    } else {
+      attractions.push({ ...frontmatter, content: parsed.content.trim() })
     }
-    return {
-      name,
-      coordinate,
-      content: parsed.content.trim(),
-      file: filename,
-    }
-  })
+  }
 
-  const attractions = await Promise.all(entries)
+  const data: Data = { attractions, routes }
 
-  await writeFile(output, JSON.stringify(attractions))
-  console.log(`Wrote packaged attractions to ${output}`)
-}
-
-const packageRouteJson = async () => {
-  const dataDir = path.join(__dirname, '../data/routes')
-  const output = path.join(__dirname, '../public/routes.json')
-
-  const files = (await readdir(dataDir)).filter(
-    (f) => path.extname(f) === '.md',
-  )
-
-  const entries = files.map(async (filename) => {
-    const content = await readFile(path.join(dataDir, filename), 'utf-8')
-    const parsed = matter(content, {
-      engines: { toml: toml.parse.bind(toml) },
-      language: 'toml',
-      delimiters: '+++',
-    })
-    const { name, points } = parsed.data as {
-      name: string
-      points: string[]
-    }
-    return {
-      name,
-      points,
-      content: parsed.content.trim(),
-      file: filename,
-    }
-  })
-
-  const routes = await Promise.all(entries)
-
-  await writeFile(output, JSON.stringify(routes))
-  console.log(`Wrote packaged routes to ${output}`)
+  await writeFile(output, JSON.stringify(data))
+  console.log(`Wrote packaged data to ${output}`)
 }
 
 const copyImages = async () => {
@@ -78,6 +45,5 @@ const copyImages = async () => {
   console.log(`Copied images from ${imageDir} to ${outputDir}`)
 }
 
-await packageAttractionJson()
-await packageRouteJson()
+await packageData()
 await copyImages()

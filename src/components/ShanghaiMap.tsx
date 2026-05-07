@@ -1,9 +1,9 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
-import { Attraction, Route } from '@/lib/attractions'
 import { T } from 'tianditu-v4-types'
 import { Button } from './ui/button'
+import { Data, Route } from '@/lib/data'
 
 interface Props {
   route: Route | null
@@ -12,12 +12,14 @@ interface Props {
 
 export default function ShanghaiMap({ onSelect, route }: Props) {
   const mapRef = useRef<HTMLDivElement>(null)
-  const [attractions, setAttractions] = useState<Attraction[]>([])
+
+  const [data, setData] = useState<Data | null>(null)
+
   const [loading, setLoading] = useState(true)
   // T.Map 类型无法直接引入，使用 unknown
   const [map, setMap] = useState<T.Map | null>(null)
   const [points, setPoints] = useState<
-    { file: string; x: number; y: number; name: string }[]
+    { x: number; y: number; name: string }[]
   >([])
   const [dragging, setDragging] = useState(false)
 
@@ -28,10 +30,10 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
 
   // 加载景点数据
   useEffect(() => {
-    fetch('/attractions.json')
+    fetch('/data.json')
       .then((res) => res.json())
       .then((data) => {
-        setAttractions(data)
+        setData(data)
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -39,7 +41,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
 
   // 初始化地图和标签点
   useEffect(() => {
-    if (loading || attractions.length === 0) return
+    if (loading || !data || data.attractions.length === 0) return
     const initMap = () => {
       const TMap = (
         window as unknown as { T: typeof import('tianditu-v4-types').T }
@@ -63,7 +65,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     } else {
       initMap()
     }
-  }, [loading, attractions])
+  }, [loading, data])
 
   useEffect(() => {
     if (!map) return
@@ -71,7 +73,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     if (route.points.length == 0) return
 
     const point = route.points[0]
-    const attr = attractions.find((a) => a.name == point)
+    const attr = data?.attractions.find((a) => a.name == point)
 
     if (!attr) return
 
@@ -96,7 +98,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     markerRefs.current = []
 
     // 生成并添加 marker
-    const markers = attractions.filter(withinRoute).map((attr) => {
+    const markers = data?.attractions.filter(withinRoute).map((attr) => {
       const [lat, lng] = attr.coordinate
       const lnglat = new TMap.LngLat(lng, lat)
       const marker = new TMap.Marker(lnglat, {
@@ -105,12 +107,13 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
           iconSize: new TMap.Point(24, 24),
         }),
       })
-      marker.data = { file: attr.file, name: attr.name }
+      marker.data = { name: attr.name }
       map.addOverLay(marker)
       return marker
     })
-    markerRefs.current = markers
-  }, [map, attractions, route])
+
+    if (markers) markerRefs.current = markers
+  }, [map, data, route])
 
   // 仅拦截滚轮缩放，手动缩放地图
   useEffect(() => {
@@ -138,14 +141,14 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
     ).T
 
     const updatePoints = () => {
-      const arr = attractions.map((attr) => {
+      const arr = data?.attractions.map((attr) => {
         const [lat, lng] = attr.coordinate
         const lnglat = new TMap.LngLat(lng, lat)
         const pt = map.lngLatToContainerPoint(lnglat)
 
-        return { file: attr.file, x: pt.x, y: pt.y, name: attr.name }
+        return { x: pt.x, y: pt.y, name: attr.name }
       })
-      setPoints(arr)
+      if (arr) setPoints(arr)
     }
 
     updatePoints()
@@ -168,7 +171,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
       map.off('moveend', updatePoints)
       map.off('zoomend', updatePoints)
     }
-  }, [map, attractions, onSelect])
+  }, [map, data, onSelect])
 
   return (
     <div className="relative w-full h-full">
@@ -185,7 +188,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
             <>
               {points.filter(withinRoute).map((pt) => (
                 <Button
-                  key={pt.file}
+                  key={pt.name}
                   className="absolute z-1000 -translate-x-1/2 -translate-y-full active:-translate-y-full px-2 py-1 rounded text-xs shadow transition-opacity duration-500 opacity-0 animate-fadein"
                   style={{
                     left: pt.x,
@@ -194,7 +197,7 @@ export default function ShanghaiMap({ onSelect, route }: Props) {
                     animation: 'fadein 0.5s forwards',
                   }}
                   size={'xs'}
-                  onClick={() => onSelect(pt.file)}
+                  onClick={() => onSelect(pt.name)}
                 >
                   {pt.name}
                 </Button>

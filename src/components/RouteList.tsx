@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Route } from '@/lib/attractions'
+import { Data, Route } from '@/lib/data'
 
 interface Props {
   onSelect: (route: Route | null) => void
@@ -10,18 +10,18 @@ interface Props {
 }
 
 export default function RouteList({ onSelect, selected }: Props) {
-  const [routes, setRoutes] = useState<Route[]>([])
+  const [data, setData] = useState<Data | null>(null)
 
   useEffect(() => {
-    fetch('/routes.json')
+    fetch('/data.json')
       .then((res) => res.json())
-      .then(setRoutes)
+      .then(setData)
   }, [])
 
   return (
-    <div className='flex flex-col gap-2'>
-      {routes.map((route) => (
-        <div key={route.file} className="items-center flex justify-center">
+    <div className="flex flex-col gap-2">
+      {data?.routes.map((route) => (
+        <div key={route.name} className="items-center flex justify-center">
           <Button
             variant={selected?.name === route.name ? 'secondary' : 'outline'}
             size="sm"

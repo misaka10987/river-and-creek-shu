@@ -1,5 +1,4 @@
 import ReactMarkdown from 'react-markdown'
-import type { Attraction } from '@/lib/attractions'
 import {
   Card,
   CardAction,
@@ -9,9 +8,10 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from './ui/button'
+import { Attraction, MarkdownContent } from '@/lib/data'
 
 interface Props {
-  attraction: Attraction
+  attraction: Attraction & MarkdownContent
   onClose: () => void
 }
 

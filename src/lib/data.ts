@@ -1,14 +1,18 @@
-// 景点数据类型
 export interface Attraction {
   name: string
   coordinate: [number, number]
-  content: string
-  file: string
 }
 
 export interface Route {
   name: string
   points: string[]
+}
+
+export interface MarkdownContent {
   content: string
-  file: string
+}
+
+export interface Data {
+  attractions: (Attraction & MarkdownContent)[]
+  routes: (Route & MarkdownContent)[]
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import AttractionCard from '@/components/AttractionCard'
-import type { Attraction } from '@/lib/attractions'
+import { Data } from '@/lib/data'
 
 /**
  * 包裹器：根据 selected 查找景点数据
@@ -13,13 +13,14 @@ export default function AttractionCardWrapper({
   selected: string | null
   onClose: () => void
 }) {
-  const [attractions, setAttractions] = useState<Attraction[]>([])
+  const [data, setData] = useState<Data | null>(null)
+
   useEffect(() => {
-    fetch('/attractions.json')
+    fetch('/data.json')
       .then((res) => res.json())
-      .then(setAttractions)
+      .then(setData)
   }, [])
-  const attraction = attractions.find((a) => a.file === selected)
+  const attraction = data?.attractions.find((a) => a.name === selected)
   if (!selected || !attraction) return null
   return <AttractionCard attraction={attraction} onClose={onClose} />
 }
