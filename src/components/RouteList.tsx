@@ -11,7 +11,7 @@ interface Props {
 
 export default function RouteList({ data, onSelect, selected }: Props) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 m-2">
       {data.routes.map((route) => (
         <div key={route.name} className="items-center flex justify-center">
           <Button
